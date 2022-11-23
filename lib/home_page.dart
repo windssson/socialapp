@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 width: 10,
               ),
-              Expanded(child: Text('32 kişi beğendi')),
+              Expanded(child: Text('35 kişi beğendi')),
               Icon(Icons.comment),
               SizedBox(
                 width: 20,
