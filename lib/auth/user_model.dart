@@ -1,8 +1,10 @@
-class User {
+class AppUser {
+  final userid;
   String name;
   String email;
+  String photourl;
 
-  User({required this.name, required this.email});
+  AppUser({required this.name, required this.email,required this.userid,required this.photourl});
   @override
   String toString() {
     return '$name - $email';

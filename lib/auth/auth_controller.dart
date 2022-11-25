@@ -1,55 +1,137 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:meslek_agi/auth/auth_result.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'user_model.dart';
 
 class AuthController extends GetxController {
-  final spuabase = Supabase.instance.client;
-  final useridkey = '';
+  static final fauth = FirebaseAuth.instance;
+  static final fbase = FirebaseFirestore.instance;
+  AppUser? cuser;
+
   //logincontrol
   Future<bool> logincontrol() async {
-    await Future.delayed(const Duration(seconds: 2));
-    return false;
+    var user = fauth.currentUser;
+    if (user == null) {
+      return false;
+    } else {
+      DocumentSnapshot veri =
+          await fbase.collection('Users').doc(user.uid).get();
+      Map<String, dynamic> map = veri.data() as Map<String, dynamic>;
+      cuser = AppUser(
+          name: map['name'],
+          email: map['mail'],
+          userid: map['userid'],
+          photourl: map['profilphoto']);
+      return true;
+    }
   }
 
-  //loginwithgoogle
+  Future<bool> logout() async {
+    await fauth.signOut();
+    log('Çıkış Yapıldı');
+    return true;
+  }
 
-  Future<AuthResult> signupwithGoogle() async {
+  Future<bool> signupwithpass(String email, String pass) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+      var user = credential.user;
+      fbase.collection('Users').doc(user!.uid).set({
+        'userid': user.uid,
+        'name': '',
+        'mail': email,
+        'profilphoto': '',
+        'bio': ''
+      });
+
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        log('Email adresi kullanılıyor');
+        Get.snackbar('Hata', 'Email adresi kullanılıyor');
+        return false;
+      } else {
+        log('Hata oluştu');
+        Get.snackbar('Hata', 'Hata oluştu');
+        return false;
+      }
+    } catch (e) {
+      log('Sunucu kaynaklı hata');
+      Get.snackbar('Hata', 'Sunucu kaynaklı hata');
+      return false;
+    }
+  }
+
+  Future<bool> loginwithgoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication? googleAuth =
         await googleUser?.authentication;
-
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
+    try {
+      var sonuc = await fauth.signInWithCredential(credential);
+      var user = sonuc.user;
 
-    // Once signed in, return the UserCredential
-    await FirebaseAuth.instance.signInWithCredential(credential);
+      DocumentSnapshot ilkmi =
+          await fbase.collection('Users').doc(user!.uid).get();
+      Map map = ilkmi.data() as Map;
+      if (map['mail'] == null) {
+        fbase.collection('Users').doc(user.uid).set({
+          'userid': user.uid,
+          'name': user.displayName,
+          'mail': user.email,
+          'profilphoto': user.photoURL,
+          'bio': ''
+        });
+      }
 
-    return AuthResult('', true);
+      return true;
+    } on FirebaseAuthException {
+      log('Google ile girişte hata');
+      Get.snackbar('Hata', 'Google ile girişte hata');
+      return false;
+    } catch (e) {
+      log('Google ile girişte sunucu kaynaklı hata');
+      Get.snackbar('Hata', 'Google ile girişte sunucu kaynaklı hata');
+      return false;
+    }
   }
 
-  //loginwithemailpass
-  Future<AuthResult> signupemailpass(String email, String pass) async {
-    AuthResult sonuc = AuthResult('Sistem kaynaklı sorun.', false);
-    await spuabase.auth.signUp(email: email, password: pass).then((value) {
-      sonuc = AuthResult('Üye  Kaydınız Başarılı', true);
-    }).onError((AuthException error, stackTrace) {
-      AuthException hata = error;
-      if (hata.statusCode == '400') {
-        sonuc = AuthResult('Email adresi kayıtlı', false);
+  Future<bool> loginwithpass(String email, String pass) async {
+    bool sonuc;
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: pass);
+      log('Giriş Başarılı');
+      sonuc = true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        log('No user found for that email.');
+        sonuc = false;
+        Get.snackbar('Hata', 'Kullanıcı bulunamadı');
+      } else if (e.code == 'wrong-password') {
+        log('Wrong password provided for that user.');
+        Get.snackbar('Hata', 'Kullanıcı şifresi hatalı');
+        sonuc = false;
       } else {
-        sonuc = AuthResult('Sunucu kaynaklı hata', false);
+        log('Sunucu kaynaklı hata');
+        Get.snackbar('Hata', 'Sunucu aynaklı Hata');
+        sonuc = false;
       }
-    });
+    } catch (e) {
+      log(e.toString());
+      sonuc = false;
+    }
+
     return sonuc;
   }
-  //createuser
-
-  //loginuser
-
-  //logoutuser
-
 }

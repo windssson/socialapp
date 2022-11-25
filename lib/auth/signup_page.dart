@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:meslek_agi/auth/auth_controller.dart';
 import 'package:meslek_agi/auth/signin_page.dart';
 import 'package:meslek_agi/constant/constant.dart';
-import 'package:meslek_agi/home_page.dart';
+import 'package:meslek_agi/feed_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -17,7 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
   double bosluk = Get.size.height / 50;
   String _email = '', _password = '';
   final _formkey = GlobalKey<FormState>();
-  final userkontrol = Get.put(AuthController());
+  final authcontroller = Get.put(AuthController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,12 +102,10 @@ class _SignUpPageState extends State<SignUpPage> {
                             bool validate = _formkey.currentState!.validate();
                             if (validate) {
                               _formkey.currentState!.save();
-                              var sonuc = await userkontrol.signupemailpass(
+                              bool sonuc = await authcontroller.signupwithpass(
                                   _email, _password);
-                              if (sonuc.sonuc) {
-                                Get.off(() => const HomePage());
-                              } else {
-                                Get.snackbar('Hopss', sonuc.result);
+                              if (sonuc) {
+                                Get.offAll(() => const FeedPage());
                               }
                             }
                           },
@@ -121,24 +119,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         height: bosluk,
                       ),
                       SizedBox(
-                        height: 45,
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            userkontrol.signupwithGoogle();
-                          },
-                          child: Text(
-                            'Google İle Üye Ol',
-                            style: Constant().girisinput,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
                         height: bosluk * 2,
                       ),
                       TextButton(
                           onPressed: (() {
-                            Get.off(() => const SigninPage());
+                            Get.offAll(() => const SigninPage());
                           }),
                           child: const Text('Hemen Giriş Yap'))
                     ],

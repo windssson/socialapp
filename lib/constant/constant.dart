@@ -6,9 +6,11 @@ class Constant {
       GoogleFonts.quicksand(fontSize: 26, fontWeight: FontWeight.bold);
   TextStyle girisinput = GoogleFonts.quicksand(fontSize: 20);
   TextStyle nametext = GoogleFonts.quicksand(
-      fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
+      fontSize: 24, color: Colors.black, fontWeight: FontWeight.bold);
   TextStyle cardbaslik = GoogleFonts.quicksand(
       fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold);
+  TextStyle posticerik = GoogleFonts.quicksand(
+      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500);
   TextStyle cardsaat = GoogleFonts.quicksand(
       fontSize: 12, color: Colors.black, fontWeight: FontWeight.w600);
 
