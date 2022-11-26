@@ -10,8 +10,6 @@ class NewPostPage extends StatefulWidget {
 class _NewPostPageState extends State<NewPostPage> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(child: Text('newpost Page')),
-    );
+    return const Center(child: Text('newpost Page'));
   }
 }

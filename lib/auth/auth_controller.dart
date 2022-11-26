@@ -19,12 +19,17 @@ class AuthController extends GetxController {
     } else {
       DocumentSnapshot veri =
           await fbase.collection('Users').doc(user.uid).get();
-      Map<String, dynamic> map = veri.data() as Map<String, dynamic>;
+      Map map = veri.data() as Map;
       cuser = AppUser(
           name: map['name'],
           email: map['mail'],
           userid: map['userid'],
-          photourl: map['profilphoto']);
+          photourl: map['profilphoto'],
+          bio: map['bio'],
+          meslek: map['meslek'],
+          takipci: map['takipci'],
+          takipedilen: map['takipedilen'],
+          postSayisi: map['postsayisi']);
       return true;
     }
   }
@@ -45,10 +50,15 @@ class AuthController extends GetxController {
       var user = credential.user;
       fbase.collection('Users').doc(user!.uid).set({
         'userid': user.uid,
-        'name': '',
+        'name': 'Anonymous',
         'mail': email,
-        'profilphoto': '',
-        'bio': ''
+        'profilphoto':
+            'https://cdn.webrazzi.com/uploads/2019/01/Yumurta_instagram_hd.png',
+        'bio': 'Hello World ',
+        'meslek': 'İşsiz',
+        'postsayisi': 0,
+        'takipci': 0,
+        'takipedilen': 0
       });
 
       return true;
@@ -83,17 +93,21 @@ class AuthController extends GetxController {
 
       DocumentSnapshot ilkmi =
           await fbase.collection('Users').doc(user!.uid).get();
-      Map map = ilkmi.data() as Map;
-      if (map['mail'] == null) {
+
+      if (!ilkmi.exists) {
         fbase.collection('Users').doc(user.uid).set({
           'userid': user.uid,
           'name': user.displayName,
           'mail': user.email,
           'profilphoto': user.photoURL,
-          'bio': ''
+          'bio': 'Hello World ',
+          'meslek': 'İşsiz',
+          'postsayisi': 0,
+          'takipci': 0,
+          'takipedilen': 0
         });
       }
-
+      logincontrol();
       return true;
     } on FirebaseAuthException {
       log('Google ile girişte hata');
@@ -101,6 +115,7 @@ class AuthController extends GetxController {
       return false;
     } catch (e) {
       log('Google ile girişte sunucu kaynaklı hata');
+      log(e.toString());
       Get.snackbar('Hata', 'Google ile girişte sunucu kaynaklı hata');
       return false;
     }
@@ -131,7 +146,7 @@ class AuthController extends GetxController {
       log(e.toString());
       sonuc = false;
     }
-
+    logincontrol();
     return sonuc;
   }
 }

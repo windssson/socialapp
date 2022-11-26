@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
+import 'package:meslek_agi/auth/auth_controller.dart';
 import 'package:meslek_agi/chat/chat_page.dart';
 import 'package:meslek_agi/constant/constant.dart';
 import 'package:meslek_agi/home/home_page.dart';
 import 'package:meslek_agi/newpost/new_post.dart';
 import 'package:meslek_agi/profil/profil_page.dart';
-import 'package:meslek_agi/search/serach_page.dart';
+import 'package:meslek_agi/search/search.dart';
 
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
@@ -17,6 +19,7 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
+  final authcontroller = Get.put(AuthController());
   int selecttab = 0;
   List<Widget> screen = [
     const HomePage(),
@@ -24,6 +27,19 @@ class _FeedPageState extends State<FeedPage> {
     const NewPostPage(),
     const ChatPage(),
     const ProfilPage()
+  ];
+  @override
+  void initState() {
+    super.initState();
+    authcontroller.logincontrol();
+  }
+
+  List<IconData> ikonlar = [
+    Icons.mode_comment,
+    Icons.search,
+    Icons.camera_alt,
+    Icons.chat,
+    Icons.person
   ];
   @override
   Widget build(BuildContext context) {
@@ -49,6 +65,12 @@ class _FeedPageState extends State<FeedPage> {
         ],
         toolbarHeight: 50,
       ),
+      floatingActionButton: selecttab == 0 || selecttab == 4
+          ? FloatingActionButton(
+              onPressed: (() {}),
+              child: const Icon(Icons.comment),
+            )
+          : const SizedBox(),
       body: screen.elementAt(selecttab),
       bottomNavigationBar: CupertinoTabBar(
           backgroundColor: Colors.white,
@@ -57,6 +79,7 @@ class _FeedPageState extends State<FeedPage> {
           onTap: (value) {
             setState(() {
               selecttab = value;
+              authcontroller.logincontrol();
             });
           },
           items: const [

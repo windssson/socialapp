@@ -1,34 +1,20 @@
-
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:meslek_agi/constant/constant.dart';
+import 'package:meslek_agi/post/post_model.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// ignore: must_be_immutable
+class PostCard extends StatefulWidget {
+  PostCard({super.key, required this.post});
+  Post post;
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<PostCard> createState() => _PostCardState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _PostCardState extends State<PostCard> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            //storyRow(),
-            const SizedBox(
-              height: 15,
-            ),
-            postcardbuild('Merhaba bu benim ilk postum.'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  postcardbuild(String icerik) {
     return Material(
       elevation: 4,
       borderRadius: BorderRadius.circular(10),
@@ -79,7 +65,7 @@ class _HomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.only(left: 10, right: 10),
               child: Text(
-                icerik,
+                'Hello World',
                 style: Constant().posticerik,
               ),
             ),
