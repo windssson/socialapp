@@ -19,17 +19,8 @@ class AuthController extends GetxController {
     } else {
       DocumentSnapshot veri =
           await fbase.collection('Users').doc(user.uid).get();
-      Map map = veri.data() as Map;
-      cuser = AppUser(
-          name: map['name'],
-          email: map['mail'],
-          userid: map['userid'],
-          photourl: map['profilphoto'],
-          bio: map['bio'],
-          meslek: map['meslek'],
-          takipci: map['takipci'],
-          takipedilen: map['takipedilen'],
-          postSayisi: map['postsayisi']);
+      Map<String, dynamic> map = veri.data() as Map<String, dynamic>;
+      cuser = AppUser.tomap(map);
       return true;
     }
   }
@@ -60,6 +51,7 @@ class AuthController extends GetxController {
         'takipci': 0,
         'takipedilen': 0
       });
+      
 
       return true;
     } on FirebaseAuthException catch (e) {

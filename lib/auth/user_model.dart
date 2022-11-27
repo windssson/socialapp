@@ -19,8 +19,20 @@ class AppUser {
       required this.takipci,
       required this.takipedilen,
       required this.postSayisi});
+
   @override
   String toString() {
     return '$name - $email';
   }
+
+  factory AppUser.tomap(Map<String, dynamic> json) => AppUser(
+      name: json['name'],
+      email: json['mail'],
+      userid: json['userid'],
+      photourl: json['profilphoto'],
+      bio: json['bio'],
+      meslek: json['meslek'],
+      takipci: json['takipci'],
+      takipedilen: json['takipedilen'],
+      postSayisi: json['postsayisi']);
 }

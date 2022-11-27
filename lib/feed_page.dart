@@ -1,3 +1,4 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,8 +8,9 @@ import 'package:meslek_agi/auth/auth_controller.dart';
 import 'package:meslek_agi/chat/chat_page.dart';
 import 'package:meslek_agi/constant/constant.dart';
 import 'package:meslek_agi/home/home_page.dart';
-import 'package:meslek_agi/newpost/new_post.dart';
-import 'package:meslek_agi/profil/profil_page.dart';
+import 'package:meslek_agi/notification/notification_page.dart';
+import 'package:meslek_agi/post/newpost_page.dart';
+import 'package:meslek_agi/profil/profil_page_future.dart';
 import 'package:meslek_agi/search/search.dart';
 
 class FeedPage extends StatefulWidget {
@@ -26,7 +28,7 @@ class _FeedPageState extends State<FeedPage> {
     const SearchPage(),
     const NewPostPage(),
     const ChatPage(),
-    const ProfilPage()
+    const ProfilPageFuture()
   ];
   @override
   void initState() {
@@ -55,9 +57,14 @@ class _FeedPageState extends State<FeedPage> {
           style: Constant().nametext,
         ),
         actions: [
-          Icon(
-            IconlyBold.notification,
-            color: Colors.green.shade700,
+          IconButton(
+            icon: Icon(
+              IconlyBold.notification,
+              color: Colors.green.shade700,
+            ),
+            onPressed: () {
+              Get.to(() => const NotifPage());
+            },
           ),
           const SizedBox(
             width: 20,
@@ -65,9 +72,11 @@ class _FeedPageState extends State<FeedPage> {
         ],
         toolbarHeight: 50,
       ),
-      floatingActionButton: selecttab == 0 || selecttab == 4
+      floatingActionButton: selecttab == 0
           ? FloatingActionButton(
-              onPressed: (() {}),
+              onPressed: (() async {
+                Get.to(const NewPostPage());
+              }),
               child: const Icon(Icons.comment),
             )
           : const SizedBox(),

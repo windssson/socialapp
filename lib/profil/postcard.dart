@@ -1,12 +1,14 @@
 // ignore: file_names
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:iconly/iconly.dart';
 import 'package:meslek_agi/constant/constant.dart';
 import 'package:meslek_agi/post/post_model.dart';
 
 // ignore: must_be_immutable
 class PostCard extends StatefulWidget {
   PostCard({super.key, required this.post});
-  Post post;
+  PostModel post;
 
   @override
   State<PostCard> createState() => _PostCardState();
@@ -29,8 +31,8 @@ class _PostCardState extends State<PostCard> {
           children: [
             Row(
               children: [
-                const CircleAvatar(
-                  backgroundImage: AssetImage('assets/images/profil3.PNG'),
+                CircleAvatar(
+                  backgroundImage: NetworkImage(widget.post.photo),
                   radius: 25,
                 ),
                 const SizedBox(
@@ -42,17 +44,102 @@ class _PostCardState extends State<PostCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Devran Aktı',
+                        widget.post.name,
                         style: Constant().cardbaslik,
                       ),
                       Text(
-                        '1 saat önce',
+                        widget.post.zaman.toLocal().toString(),
                         style: Constant().cardsaat,
                       )
                     ],
                   ),
                 ),
-                const Icon(Icons.more_vert)
+                IconButton(
+                    onPressed: (() {
+                      Get.bottomSheet(Material(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                        child: Wrap(
+                          direction: Axis.vertical,
+                          runAlignment: WrapAlignment.center,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(
+                                top: 5,
+                              ),
+                              height: 5,
+                              width: Get.width / 3,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Colors.black26),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                Get.back();
+                                gonderiSil();
+                              },
+                              icon: const Icon(
+                                IconlyLight.edit_square,
+                                size: 28,
+                                color: Colors.grey,
+                              ),
+                              label: const Text(
+                                'Düzenle',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                Get.back();
+                                gonderiSil();
+                              },
+                              icon: const Icon(
+                                IconlyLight.delete,
+                                size: 28,
+                                color: Colors.grey,
+                              ),
+                              label: const Text(
+                                'Sil',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            TextButton.icon(
+                              onPressed: () {
+                                Get.back();
+                                gonderiSil();
+                              },
+                              icon: const Icon(
+                                IconlyLight.send,
+                                size: 30,
+                                color: Colors.grey,
+                              ),
+                              label: const Text(
+                                'Paylaş',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            )
+                          ],
+                        ),
+                      ));
+                    }),
+                    icon: const Icon(Icons.more_vert))
               ],
             ),
             const SizedBox(
@@ -65,7 +152,7 @@ class _PostCardState extends State<PostCard> {
             Container(
               padding: const EdgeInsets.only(left: 10, right: 10),
               child: Text(
-                'Hello World',
+                widget.post.icerik,
                 style: Constant().posticerik,
               ),
             ),
@@ -73,17 +160,17 @@ class _PostCardState extends State<PostCard> {
               height: 15,
             ),
             Row(
-              children: const [
-                SizedBox(
+              children: [
+                const SizedBox(
                   width: 10,
                 ),
-                Expanded(child: Text('35 kişi beğendi')),
-                Icon(Icons.comment),
-                SizedBox(
+                Expanded(child: Text(widget.post.begeni.toString())),
+                const Icon(Icons.comment),
+                const SizedBox(
                   width: 20,
                 ),
-                Icon(Icons.favorite_border_sharp),
-                SizedBox(
+                const Icon(Icons.favorite_border_sharp),
+                const SizedBox(
                   width: 10,
                 )
               ],
@@ -92,5 +179,9 @@ class _PostCardState extends State<PostCard> {
         ),
       ),
     );
+  }
+
+  gonderiSil() {
+    Get.snackbar('Opss', 'Bu kısım henüz geliştirilme aşamasında');
   }
 }
