@@ -42,6 +42,7 @@ class AuthController extends GetxController {
       fbase.collection('Users').doc(user!.uid).set({
         'userid': user.uid,
         'name': 'Anonymous',
+        'nameshort': 'ananymous',
         'mail': email,
         'profilphoto':
             'https://cdn.webrazzi.com/uploads/2019/01/Yumurta_instagram_hd.png',
@@ -51,7 +52,6 @@ class AuthController extends GetxController {
         'takipci': 0,
         'takipedilen': 0
       });
-      
 
       return true;
     } on FirebaseAuthException catch (e) {
@@ -90,6 +90,7 @@ class AuthController extends GetxController {
         fbase.collection('Users').doc(user.uid).set({
           'userid': user.uid,
           'name': user.displayName,
+          'nameshort': user.displayName!.toLowerCase(),
           'mail': user.email,
           'profilphoto': user.photoURL,
           'bio': 'Hello World ',

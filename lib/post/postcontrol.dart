@@ -21,6 +21,10 @@ class PostController extends GetxController {
         .collection('gonderi')
         .doc(eklenecekid)
         .set({'gonderiid': eklenecekid}, SetOptions(merge: true));
+    await fbase
+        .collection('Users')
+        .doc(post.userid)
+        .set({'postsayisi': FieldValue.increment(1)},SetOptions(merge: true));
 
     return true;
   }

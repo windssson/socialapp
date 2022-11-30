@@ -1,30 +1,68 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
 import 'package:meslek_agi/auth/auth_controller.dart';
 import 'package:meslek_agi/constant/constant.dart';
+import 'package:meslek_agi/notification/notification_page.dart';
 import 'package:meslek_agi/post/post_model.dart';
 import 'package:meslek_agi/profil/postcard.dart';
-import 'package:meslek_agi/profil/takipci_model.dart';
-import 'package:meslek_agi/profil/takipcicard.dart';
+import 'package:meslek_agi/search/search_controller.dart';
 
-class ProfilPageFuture extends StatefulWidget {
-  const ProfilPageFuture({super.key});
+// ignore: must_be_immutable
+class VisitProfilPageFuture extends StatefulWidget {
+  VisitProfilPageFuture({super.key, required this.userid});
+  String userid;
 
   @override
-  State<ProfilPageFuture> createState() => _ProfilPageFuture();
+  State<VisitProfilPageFuture> createState() => _VisitProfilPageFuture();
 }
 
-class _ProfilPageFuture extends State<ProfilPageFuture> {
-  final authcontroller = Get.put(AuthController());
-  int pagecontrol = 1;
-
+class _VisitProfilPageFuture extends State<VisitProfilPageFuture> {
   @override
   Widget build(BuildContext context) {
-    String uid = authcontroller.cuser!.userid;
+    String uid = widget.userid;
+
+    final auth = Get.put(AuthController());
+    final scontrol = Get.put(SearchController());
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            Get.back();
+          },
+        ),
+        systemOverlayStyle:
+            const SystemUiOverlayStyle(statusBarColor: Colors.green),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        centerTitle: false,
+        title: Text(
+          'Meslek Ağı',
+          style: Constant().nametext,
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              IconlyBold.notification,
+              color: Colors.green.shade700,
+            ),
+            onPressed: () {
+              Get.to(() => const NotifPage());
+            },
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+        ],
+        toolbarHeight: 50,
+      ),
       body: StreamBuilder(
         stream:
             FirebaseFirestore.instance.collection('Users').doc(uid).snapshots(),
@@ -33,7 +71,7 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
             DocumentSnapshot veri = snapshot.data!;
             Map gveri = veri.data() as Map;
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Column(
@@ -69,7 +107,7 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
                         IconButton(
                           onPressed: (() {}),
                           icon: const Icon(
-                            IconlyBroken.edit_square,
+                            IconlyBroken.more_square,
                             size: 30,
                           ),
                         )
@@ -96,15 +134,11 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
                           children: [
                             Text(
                               gveri['postsayisi'].toString(),
-                              style: Constant()
-                                  .flowbaslik
-                                  .copyWith(color: Colors.green),
+                              style: Constant().flowbaslik,
                             ),
                             Text(
                               'Gönderi',
-                              style: Constant()
-                                  .flowtext
-                                  .copyWith(color: Colors.green),
+                              style: Constant().flowtext,
                             ),
                           ],
                         ),
@@ -112,7 +146,7 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
                           height: 35,
                           child: VerticalDivider(
                             color: Colors.black,
-                            thickness: 1.5,
+                            thickness: 2,
                             indent: 5,
                             endIndent: 0,
                             width: 10,
@@ -134,7 +168,7 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
                           height: 35,
                           child: VerticalDivider(
                             color: Colors.black,
-                            thickness: 1.5,
+                            thickness: 2,
                             indent: 5,
                             endIndent: 0,
                             width: 20,
@@ -160,15 +194,47 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
                     SizedBox(
                       width: double.infinity,
                       height: 45,
-                      child: ElevatedButton(
-                        child: const Text('Profili Düzenle'),
-                        onPressed: () {},
+                      child: FutureBuilder(
+                        future: takipcontrol(auth.cuser!.userid, widget.userid),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            if (snapshot.data!) {
+                              return ElevatedButton(
+                                onPressed: () async {
+                                  var sonuc = await scontrol.takipEt(
+                                      auth.cuser!.userid,
+                                      widget.userid,
+                                      gveri['meslek'],
+                                      gveri['name'],
+                                      gveri['profilphoto']);
+                                  if (sonuc) {
+                                    setState(() {});
+                                  }
+                                },
+                                child: const Text('Takip Et'),
+                              );
+                            } else {
+                              return ElevatedButton(
+                                onPressed: () async {
+                                  var sonuc = await scontrol.takipBirak(
+                                      auth.cuser!.userid, widget.userid);
+                                  if (sonuc) {
+                                    setState(() {});
+                                  }
+                                },
+                                child: const Text('Takibi Bırak'),
+                              );
+                            }
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
                       ),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    profilpagebuilder(),
+                    gonderibuilder()
                   ],
                 ),
               ),
@@ -181,19 +247,11 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
     );
   }
 
-  profilpagebuilder() {
-    if (pagecontrol == 0) {
-      return gonderibuilder();
-    } else {
-      return takipettiklerim();
-    }
-  }
-
   gonderibuilder() {
     return StreamBuilder(
       stream: FirebaseFirestore.instance
           .collection('Users')
-          .doc(authcontroller.cuser!.userid)
+          .doc(widget.userid)
           .collection('gonderi')
           .orderBy('zaman', descending: true)
           .snapshots(),
@@ -230,81 +288,18 @@ class _ProfilPageFuture extends State<ProfilPageFuture> {
     );
   }
 
-  takipettiklerim() {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance
-          .collection('Users')
-          .doc(authcontroller.cuser!.userid)
-          .collection('takipler')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Gönderi bulunamadı');
-        } else if (snapshot.hasData) {
-          var veri = snapshot.data;
-          List<TakipciModel> tumgonderi = [];
+  Future<bool> takipcontrol(String myuid, String uid) async {
+    DocumentSnapshot sonuc = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(myuid)
+        .collection('takipler')
+        .doc(uid)
+        .get();
 
-          for (DocumentSnapshot<Map<String, dynamic>> i in veri!.docs) {
-            TakipciModel gonderi = TakipciModel.fromjson(i.data()!);
-            tumgonderi.add(gonderi);
-          }
-          return ListView.builder(
-            primary: false,
-            shrinkWrap: true,
-            itemCount: tumgonderi.length,
-            itemBuilder: (context, index) {
-              TakipciModel oankipost = tumgonderi[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: TakipciCard(
-                  post: oankipost,
-                ),
-              );
-            },
-          );
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
-    );
-  }
-
-   takipcilerim() {
-    return StreamBuilder(
-      stream: FirebaseFirestore.instance
-          .collection('Users')
-          .doc(authcontroller.cuser!.userid)
-          .collection('takipler')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Text('Gönderi bulunamadı');
-        } else if (snapshot.hasData) {
-          var veri = snapshot.data;
-          List<TakipciModel> tumgonderi = [];
-
-          for (DocumentSnapshot<Map<String, dynamic>> i in veri!.docs) {
-            TakipciModel gonderi = TakipciModel.fromjson(i.data()!);
-            tumgonderi.add(gonderi);
-          }
-          return ListView.builder(
-            primary: false,
-            shrinkWrap: true,
-            itemCount: tumgonderi.length,
-            itemBuilder: (context, index) {
-              TakipciModel oankipost = tumgonderi[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: TakipciCard(
-                  post: oankipost,
-                ),
-              );
-            },
-          );
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
-    );
+    if (sonuc.exists) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }

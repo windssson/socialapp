@@ -1,7 +1,9 @@
 // ignore: file_names
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconly/iconly.dart';
+import 'package:meslek_agi/auth/auth_controller.dart';
 import 'package:meslek_agi/constant/constant.dart';
 import 'package:meslek_agi/post/post_model.dart';
 
@@ -15,6 +17,7 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  var fauth = Get.put(AuthController());
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -81,7 +84,7 @@ class _PostCardState extends State<PostCard> {
                             TextButton.icon(
                               onPressed: () {
                                 Get.back();
-                                gonderiSil();
+                                gonderiDuzenle();
                               },
                               icon: const Icon(
                                 IconlyLight.edit_square,
@@ -99,7 +102,7 @@ class _PostCardState extends State<PostCard> {
                             TextButton.icon(
                               onPressed: () {
                                 Get.back();
-                                gonderiSil();
+                                gonderiSil(widget.post.gonderiid);
                               },
                               icon: const Icon(
                                 IconlyLight.delete,
@@ -117,7 +120,7 @@ class _PostCardState extends State<PostCard> {
                             TextButton.icon(
                               onPressed: () {
                                 Get.back();
-                                gonderiSil();
+                                gonderiPaylas();
                               },
                               icon: const Icon(
                                 IconlyLight.send,
@@ -181,7 +184,51 @@ class _PostCardState extends State<PostCard> {
     );
   }
 
-  gonderiSil() {
-    Get.snackbar('Opss', 'Bu kısım henüz geliştirilme aşamasında');
+  gonderiSil(String postid) async {
+    Get.defaultDialog(
+      title: 'Gönderi Silinsin mi?',
+      content: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Text('Gönderiyi silmek istediğinizden emin misiniz ? \n '),
+      ),
+      actions: [
+        ElevatedButton(
+            onPressed: (() async {
+              var sonuc = await FirebaseFirestore.instance
+                  .collection('Users')
+                  .doc(fauth.cuser!.userid)
+                  .collection('gonderi')
+                  .doc(postid)
+                  .delete()
+                  .then((value) {
+                return true;
+              }).onError((error, stackTrace) => false);
+              await FirebaseFirestore.instance
+                  .collection('Users')
+                  .doc(fauth.cuser!.userid)
+                  .set({
+                    'postsayisi' : FieldValue.increment(-1)
+                  }, SetOptions(merge: true));
+              if (sonuc) {
+                Get.back();
+                Get.snackbar('Başarılı', 'Gönderi silindi.');
+              }
+            }),
+            child: const Text('Sil')),
+        ElevatedButton(
+            onPressed: (() {
+              Get.back();
+            }),
+            child: const Text('İptal Et')),
+      ],
+    );
+  }
+
+  gonderiDuzenle() {
+    Get.snackbar('Hoopss', 'Henüz geliştirilme aşamasında');
+  }
+
+  gonderiPaylas() {
+    Get.snackbar('Hoopss', 'Henüz geliştirilme aşamasında.');
   }
 }
