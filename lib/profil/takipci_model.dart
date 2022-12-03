@@ -1,4 +1,3 @@
-
 class TakipciModel {
   String name;
   String photo;
@@ -12,7 +11,12 @@ class TakipciModel {
       required this.meslek});
 
   Map<String, dynamic> toMap() {
-    return {'username': name, 'photourl': photo, 'userid': userid, 'meslek': meslek};
+    return {
+      'username': name,
+      'photourl': photo,
+      'userid': userid,
+      'meslek': meslek
+    };
   }
 
   factory TakipciModel.fromjson(Map<String, dynamic> json) {

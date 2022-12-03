@@ -68,9 +68,7 @@ class _SearchCardState extends State<SearchCard> {
                     onPressed: () async {
                       var sonuc = await scontroller.takipBirak(
                           widget.myuid, widget.userid);
-                      if (sonuc) {
-                        setState(() {});
-                      }
+                      if (sonuc) {}
                     },
                   );
                 }

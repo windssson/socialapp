@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meslek_agi/auth/auth_controller.dart';
-import 'package:meslek_agi/auth/signin_page.dart';
+import 'package:meslek_agi/auth/editprofil.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -17,10 +17,9 @@ class _ChatPageState extends State<ChatPage> {
     return Center(
       child: ElevatedButton(
         onPressed: (() {
-          authcontroller.logout();
-          Get.off(const SigninPage());
+          Get.off(const EditProfilPage());
         }),
-        child: const Text('Çıkış Yap'),
+        child: const Text('Edit Profl Page'),
       ),
     );
   }

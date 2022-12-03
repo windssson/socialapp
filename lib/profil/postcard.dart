@@ -206,9 +206,8 @@ class _PostCardState extends State<PostCard> {
               await FirebaseFirestore.instance
                   .collection('Users')
                   .doc(fauth.cuser!.userid)
-                  .set({
-                    'postsayisi' : FieldValue.increment(-1)
-                  }, SetOptions(merge: true));
+                  .set({'postsayisi': FieldValue.increment(-1)},
+                      SetOptions(merge: true));
               if (sonuc) {
                 Get.back();
                 Get.snackbar('Başarılı', 'Gönderi silindi.');

@@ -8,8 +8,9 @@ import 'package:meslek_agi/profil/takipci_model.dart';
 
 // ignore: must_be_immutable
 class TakipciCard extends StatefulWidget {
-  TakipciCard({super.key, required this.post});
+  TakipciCard({super.key, required this.post, required this.takipedenmi});
   TakipciModel post;
+  bool takipedenmi;
 
   @override
   State<TakipciCard> createState() => _TakipciCard();
@@ -58,12 +59,21 @@ class _TakipciCard extends State<TakipciCard> {
                     ],
                   ),
                 ),
-                ElevatedButton(
-                    onPressed: () async {
-                      await takibibirak(
-                          fauth.cuser!.userid, widget.post.userid);
-                    },
-                    child: const Text('Takibi Bırak'))
+                widget.takipedenmi
+                    ? ElevatedButton(
+                        onPressed: () async {
+                          await beniTakiptenCik(
+                              fauth.cuser!.userid, widget.post.userid);
+                        },
+                        child: const Text('Beni Takipten Çıkar'),
+                      )
+                    : ElevatedButton(
+                        onPressed: () async {
+                          await takibibirak(
+                              fauth.cuser!.userid, widget.post.userid);
+                        },
+                        child: const Text('Takibi Bırak'),
+                      )
               ],
             ),
           ],
@@ -79,12 +89,44 @@ class _TakipciCard extends State<TakipciCard> {
         .collection('takipler')
         .doc(userid)
         .delete();
+    await firestore
+        .collection('Users')
+        .doc(userid)
+        .collection('takipeden')
+        .doc(myuid)
+        .delete();
     await firestore.collection('Users').doc(myuid).set(
         {'takipedilen': FieldValue.increment(-1)}, SetOptions(merge: true));
     await firestore
         .collection('Users')
         .doc(userid)
         .set({'takipci': FieldValue.increment(-1)}, SetOptions(merge: true));
+    return true;
+  }
+
+  Future<bool> beniTakiptenCik(String myuid, String userid) async {
+    await firestore
+        .collection('Users')
+        .doc(myuid)
+        .collection('takipeden')
+        .doc(userid)
+        .delete();
+
+    await firestore
+        .collection('Users')
+        .doc(userid)
+        .collection('takipler')
+        .doc(myuid)
+        .delete();
+
+    await firestore
+        .collection('Users')
+        .doc(myuid)
+        .set({'takipci': FieldValue.increment(-1)}, SetOptions(merge: true));
+
+    await firestore.collection('Users').doc(userid).set(
+        {'takipedilen': FieldValue.increment(-1)}, SetOptions(merge: true));
+
     return true;
   }
 }

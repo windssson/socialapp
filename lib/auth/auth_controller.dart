@@ -1,7 +1,8 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'user_model.dart';
@@ -9,6 +10,7 @@ import 'user_model.dart';
 class AuthController extends GetxController {
   static final fauth = FirebaseAuth.instance;
   static final fbase = FirebaseFirestore.instance;
+  static final fstore = FirebaseStorage.instance;
   AppUser? cuser;
 
   //logincontrol
@@ -141,5 +143,25 @@ class AuthController extends GetxController {
     }
     logincontrol();
     return sonuc;
+  }
+
+  Future<bool> userChangename(
+      {required Uint8List photo,
+      required String name,
+      required String bio}) async {
+    var adress = await uploadphoto('user', photo, false);
+    await fbase.collection('Users').doc(cuser!.userid).set(
+        {'name': name, 'profilphoto': adress, 'bio': bio},
+        SetOptions(merge: true));
+    return true;
+  }
+
+  Future<String> uploadphoto(
+      String childname, Uint8List photo, bool post) async {
+    Reference ref = fstore.ref(childname).child(cuser!.userid);
+    UploadTask upload = ref.putData(photo);
+    TaskSnapshot task = await upload;
+    String downloadurl = await task.ref.getDownloadURL();
+    return downloadurl;
   }
 }
